@@ -2,6 +2,10 @@
 #include "hal/rcc.h"
 #include "utils/string.h"
 
+//---- CONSTANTS -------------------------------------------------------------------------------------------------------------------------------------------------
+
+#define MAX_PUTS_STRING_LEN     128     // maximum length of a single string to be sent by the uart_puts() function; protection against non-terminated strings
+
 //---- PRIVATE DATA ----------------------------------------------------------------------------------------------------------------------------------------------
 
 static uart_fifo_t *tx_fifo[3] = {0};       // UART transmit FIFO buffer for UART1, UART2 and UART6
@@ -153,18 +157,22 @@ void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, ui
 // returns true, if the RX buffer contains new data
 volatile bool uart_has_data(USART_TypeDef *uart) {
 
-    if (rx_fifo[get_fifo(uart)] == 0) false;
+    if (rx_fifo[get_fifo(uart)] == 0) false;            // RX fifo not initialized
     return (fifo_has_data(rx_fifo[get_fifo(uart)]));
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-// transmits one byte via UART; waits if the TX fifo is full
+// transmits one byte via UART
 void uart_putc(USART_TypeDef *uart, char c) {
 
-    if (tx_fifo[get_fifo(uart)] == 0) return;
-    while(fifo_is_full(tx_fifo[get_fifo(uart)]));
+    if (tx_fifo[get_fifo(uart)] == 0) return;   // TX fifo not initialized
 
+    // don't send if the fifo is full, busy waiting here would potentially cause deadline misses of other tasks or looping indefinetly in case of a fault
+    // therefore skipping the bytes is the better option here
+    if (fifo_is_full(tx_fifo[get_fifo(uart)])) return;
+
+    // disable interrupts while pushing to preserve the correct byte order
     __disable_irq();
     fifo_push(tx_fifo[get_fifo(uart)], c);
     set_bits(uart->CR1, USART_CR1_TXEIE);     // enable TX data register empty interrupt
@@ -183,10 +191,16 @@ void uart_puti(USART_TypeDef *uart, int num) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-// transmits a null-terminated string via UART; waits if the TX fifo is full
+// transmits a null-terminated string via UART
 void uart_puts(USART_TypeDef *uart, const char *str) {
 
-    while (*str != '\0') uart_putc(uart, *str++);
+    uint32_t bytes_sent = 0;        // limit bytes sent in a single function; protection against infinite looping in case a non-terminated string is passed
+
+    while (*str != '\0' && bytes_sent < MAX_PUTS_STRING_LEN) {
+        
+        uart_putc(uart, *str++);
+        bytes_sent++;
+    }
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

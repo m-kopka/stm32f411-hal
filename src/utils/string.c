@@ -1,25 +1,29 @@
 #include "utils/string.h"
 
+//---- FUNCTIONS -------------------------------------------------------------------------------------------------------------------------------------------------
+
 void *memcpy (void *dest, const void *src, uint32_t len) {
 
 	char *d = dest;
 	const char *s = src;
 
 	while (len--) *d++ = *s++;
-
 	return dest;
 }
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
 void *memset (void *dest, int val, uint32_t len) {
 
 	unsigned char *ptr = dest;
 
 	while (len-- > 0) *ptr++ = val;
-
 	return dest;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
+// returns a length of a null-terminated string
 uint32_t strlen(char *str) {
 
     uint32_t size = 0;
@@ -29,6 +33,9 @@ uint32_t strlen(char *str) {
     return size;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// converts an integer to string
 int itoa(int num, char* str, int len, int base) {
 
 	int sum = num;
@@ -56,6 +63,9 @@ int itoa(int num, char* str, int len, int base) {
 	return 0;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// converts a string to integer
 int atoi(char* str) {
 	
     int res = 0;
@@ -63,6 +73,9 @@ int atoi(char* str) {
     return res;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// reverses a string
 void strrev(char *str) {
 
 	int i;
@@ -78,10 +91,16 @@ void strrev(char *str) {
 	}
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// compares two strings; if the strings are equal, a 0 is returned
 int strcmp(const char *s1, const char *s2) {
 	
 	while (*s1 == *s2++)
 		if (*s1++ == '\0')
 			return (0);
+			
 	return (*(const unsigned char *)s1 - *(const unsigned char *)(s2 - 1));
 }
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------------------
