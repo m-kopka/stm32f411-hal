@@ -13,26 +13,10 @@
 #include "stm32f4xx.h"
 #include "hal/gpio.h"
 
-//---- CONSTANTS -------------------------------------------------------------------------------------------------------------------------------------------------
-
-#define UART_FIFO_SIZE 256      // RX and TX buffer size for each UART block
-
-//---- STRUCTS ---------------------------------------------------------------------------------------------------------------------------------------------------
-
-// TX and RX circular buffers data structure
-typedef struct {
-
-    volatile uint8_t  data[UART_FIFO_SIZE];
-    volatile uint32_t head;
-    volatile uint32_t tail;
-    volatile bool     is_full;
-
-} uart_fifo_t;
-
 //---- FUNCTIONS -------------------------------------------------------------------------------------------------------------------------------------------------
 
-// initializes the UART hardware
-void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, uint8_t tx_gpio, GPIO_TypeDef *rx_port, uint8_t rx_gpio, uart_fifo_t *tx_buffer, uart_fifo_t *rx_buffer);
+// initializes the UART hardware, the callee must provide a TX and RX buffers and their size. The driver then uses the buffers as TX and RX fifos
+void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, uint8_t tx_gpio, GPIO_TypeDef *rx_port, uint8_t rx_gpio, char *tx_buffer, uint32_t tx_buffer_size, char *rx_buffer, uint32_t rx_buffer_size);
 
 // returns true, if RX buffer contains new data
 bool uart_has_data(USART_TypeDef *uart);
