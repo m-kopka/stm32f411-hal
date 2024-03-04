@@ -10,27 +10,31 @@ SECTIONS
 {
     .text :
     {
-        *(.vector_table)
+        KEEP(*(.vector_table))
         *(.text*)
         *(.rodata*)
         . = ALIGN(4);
-    }> FLASH
 
-    _la_data = LOADADDR(.data);
+        _la_data = .;    /* load address of .data in FLASH */
+    }> FLASH
 
     .data :
     {
-        _sdata = .;
-        *(.data*)
-        _edata = .;
         . = ALIGN(4);
+        _sdata = .;     /* start address of .data in SRAM */
+        *(.data*)
+        . = ALIGN(4);
+        _edata = .;     /* end address of .data in SRAM */
+
     }> SRAM AT> FLASH
 
     .bss :
     {
-        _sbss = .;
-        *(.bss*)
-        _ebss = .;
         . = ALIGN(4);
+        _sbss = .;      /* start address of .bss in SRAM */
+        *(.bss*)
+        . = ALIGN(4);
+        _ebss = .;      /* end address of .bss in SRAM */
+
     }> SRAM
 }
