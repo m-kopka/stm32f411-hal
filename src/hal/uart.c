@@ -160,6 +160,8 @@ void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, ui
 
     tx_fifo[get_fifo(uart)].data = tx_buffer;
     rx_fifo[get_fifo(uart)].data = rx_buffer;
+    tx_fifo[get_fifo(uart)].size = tx_buffer_size;
+    rx_fifo[get_fifo(uart)].size = rx_buffer_size;
     if (tx_buffer != 0) fifo_flush(&tx_fifo[get_fifo(uart)]);
     if (rx_buffer != 0) fifo_flush(&rx_fifo[get_fifo(uart)]);
 
@@ -188,10 +190,15 @@ void uart_putc(USART_TypeDef *uart, char c) {
     if (fifo_is_full(&tx_fifo[get_fifo(uart)])) return;
 
     // disable interrupts while pushing to preserve the correct byte order
-    __disable_irq();
-    fifo_push(&tx_fifo[get_fifo(uart)], c);
-    set_bits(uart->CR1, USART_CR1_TXEIE);     // enable TX data register empty interrupt
-    __enable_irq();
+    //__disable_irq();
+    //fifo_push(&tx_fifo[get_fifo(uart)], c);
+    //set_bits(uart->CR1, USART_CR1_TXEIE);     // enable TX data register empty interrupt
+    //__enable_irq();
+
+    USART1->DR = c;
+
+    while (bit_is_clear(USART1->SR, USART_SR_TXE));
+    while (bit_is_clear(USART1->SR, USART_SR_TC));
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
