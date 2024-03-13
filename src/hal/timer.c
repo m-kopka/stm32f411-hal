@@ -67,7 +67,7 @@ void timer_init_counter(TIM_TypeDef *timer, uint32_t frequency_hz, timer_dir_t d
 // initializes the timer to generate edge aligned PWM
 void timer_init_pwm(TIM_TypeDef *timer, uint8_t channel, GPIO_TypeDef *port, uint8_t gpio, uint32_t frequency_hz, uint32_t reload_value) {
 
-    rcc_enable_peripheral_clock(__gpio_get_clock(port));
+    rcc_enable_peripheral_clock(gpio_get_clock(port));
     rcc_enable_peripheral_clock(__get_timer_clock(timer));
     gpio_set_mode(port, gpio, GPIO_MODE_ALTERNATE_FUNCTION);
     gpio_set_alternate_function(port, gpio , __get_timer_alternate_function(timer));
