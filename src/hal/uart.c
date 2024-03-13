@@ -26,7 +26,7 @@ static uart_fifo_t rx_fifo[3] = {0};       // UART receive FIFO buffer for UART1
 
 //---- PRIVATE FUNCTIONS -----------------------------------------------------------------------------------------------------------------------------------------
 
-static force_inline void fifo_push(uart_fifo_t *fifo, char data) {
+static force_inline void __fifo_push(uart_fifo_t *fifo, char data) {
 
     fifo->data[fifo->head++] = data;
 
@@ -36,7 +36,7 @@ static force_inline void fifo_push(uart_fifo_t *fifo, char data) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline char fifo_pop(uart_fifo_t *fifo) {
+static force_inline char __fifo_pop(uart_fifo_t *fifo) {
 
     char data = fifo->data[fifo->tail++];
     if (fifo->tail == fifo->size) fifo->tail = 0;
@@ -47,21 +47,21 @@ static force_inline char fifo_pop(uart_fifo_t *fifo) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline bool fifo_has_data(uart_fifo_t *fifo) {
+static force_inline bool __fifo_has_data(uart_fifo_t *fifo) {
 
     return ((fifo->head != fifo->tail) || fifo->is_full);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline bool fifo_is_full(uart_fifo_t *fifo) {
+static force_inline bool __fifo_is_full(uart_fifo_t *fifo) {
 
     return (fifo->is_full);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline void fifo_flush(uart_fifo_t *fifo) {
+static force_inline void __fifo_flush(uart_fifo_t *fifo) {
 
     fifo->tail = fifo->head;
     fifo->is_full = false;
@@ -69,7 +69,7 @@ static force_inline void fifo_flush(uart_fifo_t *fifo) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline rcc_peripheral_clock_en_t get_uart_clock(USART_TypeDef *uart) {
+static force_inline rcc_peripheral_clock_en_t __get_uart_clock(USART_TypeDef *uart) {
 
     if      (uart == USART1) return (RCC_PERIPH_APB2_USART1);
     else if (uart == USART2) return (RCC_PERIPH_APB1_USART2);
@@ -78,7 +78,7 @@ static force_inline rcc_peripheral_clock_en_t get_uart_clock(USART_TypeDef *uart
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline gpio_alternate_function_t get_alternate_function(USART_TypeDef *uart) {
+static force_inline gpio_alternate_function_t __get_alternate_function(USART_TypeDef *uart) {
 
     if      (uart == USART1) return (GPIO_ALTERNATE_FUNCTION_SPI3_USART1_USART2);
     else if (uart == USART2) return (GPIO_ALTERNATE_FUNCTION_SPI3_USART1_USART2);
@@ -87,7 +87,7 @@ static force_inline gpio_alternate_function_t get_alternate_function(USART_TypeD
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline IRQn_Type get_uart_irq(USART_TypeDef *uart) {
+static force_inline IRQn_Type __get_uart_irq(USART_TypeDef *uart) {
 
     if      (uart == USART1) return (USART1_IRQn);
     else if (uart == USART2) return (USART2_IRQn);
@@ -96,7 +96,7 @@ static force_inline IRQn_Type get_uart_irq(USART_TypeDef *uart) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline rcc_peripheral_clock_en_t get_gpio_clock(GPIO_TypeDef *gpio_port) {
+static force_inline rcc_peripheral_clock_en_t __get_gpio_clock(GPIO_TypeDef *gpio_port) {
 
     if      (gpio_port == GPIOA) return (RCC_PERIPH_AHB1_GPIOA);
     else if (gpio_port == GPIOB) return (RCC_PERIPH_AHB1_GPIOB);
@@ -108,7 +108,7 @@ static force_inline rcc_peripheral_clock_en_t get_gpio_clock(GPIO_TypeDef *gpio_
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static force_inline uint8_t get_fifo(USART_TypeDef *uart) {
+static force_inline uint8_t __get_fifo(USART_TypeDef *uart) {
 
     if      (uart == USART1) return (0);
     else if (uart == USART2) return (1);
@@ -125,20 +125,20 @@ void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, ui
     if (tx_buffer != 0 && tx_buffer_size == 0) return;      // TX buffer size is 0
     if (rx_buffer != 0 && rx_buffer_size == 0) return;      // RX buffer size is 0
     
-    rcc_enable_peripheral_clock(get_uart_clock(uart));
-    rcc_enable_peripheral_clock(get_gpio_clock(tx_port));
-    rcc_enable_peripheral_clock(get_gpio_clock(rx_port));
+    rcc_enable_peripheral_clock(__get_uart_clock(uart));
+    rcc_enable_peripheral_clock(__get_gpio_clock(tx_port));
+    rcc_enable_peripheral_clock(__get_gpio_clock(rx_port));
 
     if (tx_port != 0) {
 
         gpio_set_mode(tx_port, tx_gpio, GPIO_MODE_ALTERNATE_FUNCTION);
-        gpio_set_alternate_function(tx_port, tx_gpio, get_alternate_function(uart));
+        gpio_set_alternate_function(tx_port, tx_gpio, __get_alternate_function(uart));
     }         
     
     if (rx_port != 0) {
 
         gpio_set_mode(rx_port, rx_gpio, GPIO_MODE_ALTERNATE_FUNCTION);
-        gpio_set_alternate_function(rx_port, rx_gpio, get_alternate_function(uart));
+        gpio_set_alternate_function(rx_port, rx_gpio, __get_alternate_function(uart));
     }
 
     // USART2 is on APB1, USART1 and USART6 are on APB2
@@ -158,15 +158,15 @@ void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, ui
     uart->CR3 = 0;
     set_bits(uart->CR1, USART_CR1_UE);      // UART enable
 
-    tx_fifo[get_fifo(uart)].data = tx_buffer;
-    rx_fifo[get_fifo(uart)].data = rx_buffer;
-    tx_fifo[get_fifo(uart)].size = tx_buffer_size;
-    rx_fifo[get_fifo(uart)].size = rx_buffer_size;
-    if (tx_buffer != 0) fifo_flush(&tx_fifo[get_fifo(uart)]);
-    if (rx_buffer != 0) fifo_flush(&rx_fifo[get_fifo(uart)]);
+    tx_fifo[__get_fifo(uart)].data = tx_buffer;
+    rx_fifo[__get_fifo(uart)].data = rx_buffer;
+    tx_fifo[__get_fifo(uart)].size = tx_buffer_size;
+    rx_fifo[__get_fifo(uart)].size = rx_buffer_size;
+    if (tx_buffer != 0) __fifo_flush(&tx_fifo[__get_fifo(uart)]);
+    if (rx_buffer != 0) __fifo_flush(&rx_fifo[__get_fifo(uart)]);
 
-    NVIC_EnableIRQ(get_uart_irq(uart));         // enable the UART IRQ in NVIC
-    NVIC_SetPriority(get_uart_irq(uart), 0);
+    NVIC_EnableIRQ(__get_uart_irq(uart));         // enable the UART IRQ in NVIC
+    NVIC_SetPriority(__get_uart_irq(uart), 0);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -174,8 +174,7 @@ void uart_init(USART_TypeDef *uart, uint32_t baudrate, GPIO_TypeDef *tx_port, ui
 // returns true, if the RX buffer contains new data
 volatile bool uart_has_data(USART_TypeDef *uart) {
 
-    if (&rx_fifo[get_fifo(uart)] == 0) false;            // RX fifo not initialized
-    return (fifo_has_data(&rx_fifo[get_fifo(uart)]));
+    return (__fifo_has_data(&rx_fifo[__get_fifo(uart)]));
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -183,22 +182,15 @@ volatile bool uart_has_data(USART_TypeDef *uart) {
 // transmits one byte via UART
 void uart_putc(USART_TypeDef *uart, char c) {
 
-    if (&tx_fifo[get_fifo(uart)] == 0) return;   // TX fifo not initialized
-
     // don't send if the fifo is full, busy waiting here would potentially cause deadline misses of other tasks or looping indefinetly in case of a fault
     // therefore skipping the bytes is the better option here
-    if (fifo_is_full(&tx_fifo[get_fifo(uart)])) return;
+    if (__fifo_is_full(&tx_fifo[__get_fifo(uart)])) return;
 
     // disable interrupts while pushing to preserve the correct byte order
-    //__disable_irq();
-    //fifo_push(&tx_fifo[get_fifo(uart)], c);
-    //set_bits(uart->CR1, USART_CR1_TXEIE);     // enable TX data register empty interrupt
-    //__enable_irq();
-
-    USART1->DR = c;
-
-    while (bit_is_clear(USART1->SR, USART_SR_TXE));
-    while (bit_is_clear(USART1->SR, USART_SR_TC));
+    __disable_irq();
+    __fifo_push(&tx_fifo[__get_fifo(uart)], c);
+    set_bits(uart->CR1, USART_CR1_TXEIE);     // enable TX data register empty interrupt
+    __enable_irq();
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
@@ -230,9 +222,8 @@ void uart_puts(USART_TypeDef *uart, const char *str) {
 // reads one byte from the RX buffer; returns -1 if there is no new data
 int16_t uart_getc(USART_TypeDef *uart) {
 
-    if (&rx_fifo[get_fifo(uart)] == 0) return -1;               // RX fifo not initialized
-    if (!fifo_has_data(&rx_fifo[get_fifo(uart)])) return -1;    // no new data
-    return fifo_pop(&rx_fifo[get_fifo(uart)]);
+    if (!__fifo_has_data(&rx_fifo[__get_fifo(uart)])) return -1;    // no new data
+    return __fifo_pop(&rx_fifo[__get_fifo(uart)]);
 }
 
 //---- IRQ HANDLERS ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -242,17 +233,17 @@ static force_inline void uart_handler(USART_TypeDef *uart) {
     // interrupt was triggered by TX buffer empty
     if (bit_is_set(uart->SR, USART_SR_TXE)) {
         
-        if (fifo_has_data(&tx_fifo[get_fifo(uart)])) uart->DR = fifo_pop(&tx_fifo[get_fifo(uart)]);
+        if (__fifo_has_data(&tx_fifo[__get_fifo(uart)])) uart->DR = __fifo_pop(&tx_fifo[__get_fifo(uart)]);
         else clear_bits(uart->CR1, USART_CR1_TXEIE);      // done transmiting disable TX data register empty interrupt
     }
 
     // interrupt was triggered by RX buffer not empty
     if (bit_is_set(uart->SR, USART_SR_RXNE)) {
 
-        if (!fifo_is_full(&rx_fifo[get_fifo(uart)])) fifo_push(&rx_fifo[get_fifo(uart)], uart->DR);
+        if (!__fifo_is_full(&rx_fifo[__get_fifo(uart)])) __fifo_push(&rx_fifo[__get_fifo(uart)], uart->DR);
     }
 
-    NVIC_ClearPendingIRQ(get_uart_irq(uart));
+    NVIC_ClearPendingIRQ(__get_uart_irq(uart));
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 

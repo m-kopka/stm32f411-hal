@@ -2,7 +2,7 @@
 
 //---- PRIVATE FUNCTIONS -----------------------------------------------------------------------------------------------------------------------------------------
 
-static inline uint8_t get_gpio_EXTIx(GPIO_TypeDef* port) {
+static inline uint8_t __get_gpio_EXTIx(GPIO_TypeDef* port) {
 
     if      (port == GPIOA) return 0;
     else if (port == GPIOB) return 1;
@@ -14,7 +14,7 @@ static inline uint8_t get_gpio_EXTIx(GPIO_TypeDef* port) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-static inline IRQn_Type get_gpio_irq(uint8_t gpio) {
+static inline IRQn_Type __get_gpio_irq(uint8_t gpio) {
 
          if (gpio == 0) return (EXTI0_IRQn);
     else if (gpio == 1) return (EXTI1_IRQn);
@@ -34,7 +34,7 @@ void gpio_init_interrupt(GPIO_TypeDef* port, uint8_t gpio, gpio_irq_type_t type)
     gpio_set_mode(port, gpio, GPIO_MODE_INPUT);
 
     // connect GPIO to its respective EXTI line
-    write_masked(SYSCFG->EXTICR[gpio / 4], get_gpio_EXTIx(port) << ((gpio % 4) * 4), 0xF << ((gpio % 4) * 4));
+    write_masked(SYSCFG->EXTICR[gpio / 4], __get_gpio_EXTIx(port) << ((gpio % 4) * 4), 0xF << ((gpio % 4) * 4));
 
     // Setup the button's EXTI line as an interrupt.
     set_bits(EXTI->IMR, 1 << gpio);
@@ -48,8 +48,8 @@ void gpio_init_interrupt(GPIO_TypeDef* port, uint8_t gpio, gpio_irq_type_t type)
     else clear_bits(EXTI->FTSR, (1 << gpio));
 
     // enable the NVIC interrupt at minimum priority.
-    NVIC_SetPriority(get_gpio_irq(gpio), 0x03);
-    NVIC_EnableIRQ(get_gpio_irq(gpio));
+    NVIC_SetPriority(__get_gpio_irq(gpio), 0x03);
+    NVIC_EnableIRQ(__get_gpio_irq(gpio));
 }
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
