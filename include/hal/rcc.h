@@ -131,13 +131,31 @@ static inline void rcc_enable_hse(uint32_t hse_frequency_hz) {
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
-// disables the low speed external oscillator
+// disables the high speed external oscillator
 static inline void rcc_disable_hse(void) {
 
     clear_bits(RCC->CR, RCC_CR_HSEON);
     while(bit_is_set(RCC->CR, RCC_CR_HSERDY));
 
     HSE_frequency_hz = 0;
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// enables the low speed internal oscillator
+static inline void rcc_enable_lsi(void) {
+
+    set_bits(RCC->CSR, RCC_CSR_LSION);
+    while(bit_is_clear(RCC->CSR, RCC_CSR_LSIRDY));
+}
+
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// disables the low speed internal oscillator
+static inline void rcc_disable_lsi(void) {
+
+    clear_bits(RCC->CSR, RCC_CSR_LSION);
+    while(bit_is_set(RCC->CSR, RCC_CSR_LSIRDY));
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
