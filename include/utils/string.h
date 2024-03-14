@@ -5,6 +5,10 @@
 
 //---- FUNCTIONS -------------------------------------------------------------------------------------------------------------------------------------------------
 
+void *memcpy (void *dest, const void *src, uint32_t len);
+
+void *memset (void *dest, int val, uint32_t len);
+
 // returns a length of a null-terminated string
 uint32_t strlen(char *str);
 
