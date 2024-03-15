@@ -48,6 +48,17 @@ static inline void timer_set_pwm_duty(TIM_TypeDef *timer, uint8_t channel, uint3
     else                   timer->CCR4 = duty;
 }
 
+//- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+// returns the duty cycle of a PWM channel (duty = 100 * duty / (reload_val - 1) [%])
+static inline uint32_t timer_get_pwm_duty(TIM_TypeDef *timer, uint8_t channel) {
+
+    if      (channel == 1) return (timer->CCR1);
+    else if (channel == 2) return (timer->CCR2);
+    else if (channel == 3) return (timer->CCR3);
+    else                   return (timer->CCR4);
+}
+
 //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 #endif /* _HAL_TIMER_H_ */
