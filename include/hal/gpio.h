@@ -133,8 +133,8 @@ static inline void gpio_set_alternate_function(GPIO_TypeDef *port, uint8_t gpio,
 // sets GPIO output to HIGH or LOW
 static inline void gpio_write(GPIO_TypeDef *port, uint8_t gpio, bool state) {
 
-    if (state) set_bits(port->BSRRL, (1 << gpio));
-    else       set_bits(port->BSRRH, (1 << gpio));
+    if (state) port->BSRRL = (1 << gpio);
+    else       port->BSRRH = (1 << gpio);
 }
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
